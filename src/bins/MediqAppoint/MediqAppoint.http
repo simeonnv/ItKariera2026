@@ -1,0 +1,6 @@
+@MediqAppoint_HostAddress = http://localhost:5120
+
+GET {{MediqAppoint_HostAddress}}/hello/
+Accept: application/json
+
+###

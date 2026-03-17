@@ -1,17 +1,33 @@
 services:
-  mariadb:
-    image: mariadb:latest
-    container_name: mariadb
+  db:
+    image: mysql:8.0.45-bookworm
+    container_name: mediqdb
     restart: always
-    environment:
-      MARIADB_ROOT_PASSWORD: root
-      MARIADB_DATABASE: ItKariera
-      MARIADB_USER: root
-      MARIADB_PASSWORD: root
+    env_file:
+      - config/.env.db
     ports:
-      - "3306:3306"
+      - 3306:3306
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - mediqdb_data:/var/lib/mysql
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - mediq_be
+
+  app:
+    build: ./src
+    container_name: mediqapp
+    depends_on:
+      - db
+    env_file:
+      - config/.env.app
+    ports:
+      - 8080:8080
+    networks:
+      - mediq_be
 
 volumes:
-  mariadb_data:
+  mediqdb_data:
+
+networks:
+  mediq_be:
