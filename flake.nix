@@ -1,5 +1,5 @@
 {
-  description = "C# .NET Development Environment";
+  description = "C# .NET Development Environment and Build";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -21,7 +21,6 @@
         mono
         csharp-ls
       ];
-
       shellHook = ''
         export DOTNET_CLI_TELEMETRY_OPTOUT=1
         export PATH="$PATH:$HOME/.dotnet/tools"

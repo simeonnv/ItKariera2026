@@ -4,7 +4,7 @@ services:
     container_name: mediqdb
     restart: always
     env_file:
-      - config/.env.db
+      - ../.env.dev
     ports:
       - 3306:3306
     volumes:
@@ -15,12 +15,12 @@ services:
       - mediq_be
 
   app:
-    build: ./src
+    build: ../src
     container_name: mediqapp
     depends_on:
       - db
     env_file:
-      - config/.env.app
+      - ../.env.dev
     ports:
       - 8080:8080
     networks:

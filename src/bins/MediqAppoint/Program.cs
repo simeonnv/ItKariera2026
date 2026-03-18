@@ -1,9 +1,17 @@
 using DbModels;
 using Microsoft.EntityFrameworkCore;
+using DotNetEnv;
 
+
+// bundle this in some object
+Env.Load("../../../.env.dev");
 var builder = WebApplication.CreateBuilder(args);
 
-var serverConnectionString = builder.Configuration.GetConnectionString("Default");
+var host = Environment.GetEnvironmentVariable("DB_DNS") ?? "localhost";
+var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "3306";
+var database = Environment.GetEnvironmentVariable("MYSQL_DATABASE") ?? "root";
+var password = Environment.GetEnvironmentVariable("MYSQL_ROOT_PASSWORD") ?? "root";
+var serverConnectionString = $"Server={host};Port={port};Database={database};Uid=root;Pwd={password};";
 
 if (serverConnectionString is null) throw new InvalidOperationException("Connection string is not configured!");
 
@@ -22,11 +30,14 @@ if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseHttpsRedirection();
 
-app.MapGet("/hello", () => new Message("Hi there!"))
-    .WithName("GetHelloMessage");
+app.MapGet("/ping", () => new Message("pong"))
+    .WithName("GetPingMessage");
+    
+app.MapGet("/health", () => new Message("healthy"))
+    .WithName("GethealthMessage");
 
 app.MapGet("/env_value",
-    (IConfiguration config) => new Message(config["ENV_VALUE"] ?? "ENV_VALUE is not set in .env.app!"));
+    (IConfiguration config) => new Message(config["ENV_VALUE"] ?? "ENV_VALUE is not set!"));
 
 app.MapGet("/examples", async (AppDbContext db) => await db.Examples.ToListAsync());
 
