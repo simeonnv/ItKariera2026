@@ -18,7 +18,7 @@ if (serverConnectionString is null) throw new InvalidOperationException("Connect
 builder.Services.AddDbContext<AppDbContext>(dbOptions =>
     dbOptions.UseMySql(
         serverConnectionString,
-        ServerVersion.AutoDetect(serverConnectionString)
+        new MySqlServerVersion(new Version(8, 0, 45))
     )
 );
 
