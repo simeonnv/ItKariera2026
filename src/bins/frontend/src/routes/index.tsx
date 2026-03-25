@@ -1,24 +1,18 @@
 import { A } from "@solidjs/router";
-import Counter from "~/components/Counter";
 
 export default function Home() {
   return (
-    <main class="text-center mx-auto text-gray-700 p-4">
-      <h1 class="max-6-xs text-6xl text-green-700 font-bold uppercase my-16">MediqApp</h1>
-      <p class="mt-8">
-        Visit{" "}
-        <a href="https://solidjs.com" target="_blank" class="text-sky-600 hover:underline">
-          solidjs.com
-        </a>{" "}
-        to learn how to build Solid apps.
+    
+    <main class="text-center mx-auto text-gray-700">
+      <div class="bg-[url(src/images/hopital.png)] py-60">
+      <div class="backdrop-blur-sm p-4 py-15">
+        <h1 class="max-6-xs text-6xl text-green-100 font-bold uppercase">MediqApp</h1>
+      <p class="mt-10 text-green-100">
+        One place for all your medical records.
       </p>
-      <p class="my-4">
-        <span>Home</span>
-        {" - "}
-        <A href="/about" class="text-sky-600 hover:underline">
-          About Page
-        </A>{" "}
-      </p>
+      <a class="btn bg-green-700 hover:bg-gray-900 mt-10">Take a look</a>
+      </div>
+      </div>
     </main>
   );
 }
