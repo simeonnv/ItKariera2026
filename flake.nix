@@ -20,6 +20,8 @@
         dotnet-ef
         mono
         csharp-ls
+        nodejs
+        bun
       ];
       shellHook = ''
         export DOTNET_CLI_TELEMETRY_OPTOUT=1
