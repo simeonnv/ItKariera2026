@@ -1,8 +1,8 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
+WORKDIR /src/bins/MediqAppoint
 COPY . ./
 
-WORKDIR /src/bins/MediqAppoint
+WORKDIR ./
 RUN dotnet restore
 RUN dotnet publish -c Release -o /out
 

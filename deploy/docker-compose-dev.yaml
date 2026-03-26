@@ -15,7 +15,7 @@ services:
       - mediq_be
 
   app:
-    build: ../src
+    build: ../src/bins/MediqAppoint
     container_name: mediqapp
     depends_on:
       - db
@@ -23,6 +23,16 @@ services:
       - ../.env.dev
     ports:
       - 8080:8080
+    networks:
+      - mediq_be
+
+  frontend:
+    build: ../src/bins/frontend
+    container_name: frontend
+    depends_on:
+      - app
+    ports:
+      - 3000:3000
     networks:
       - mediq_be
 
