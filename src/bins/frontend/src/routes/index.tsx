@@ -10,7 +10,7 @@ export default function Home() {
       <p class="mt-10 text-green-100">
         One place for all your medical records.
       </p>
-      <a class="btn bg-green-700 hover:bg-gray-900 mt-10">Take a look</a>
+      <a class="btn bg-green-700 hover:bg-gray-900 mt-10" href="medicalInfo">Take a look</a>
       </div>
       </div>
     </main>

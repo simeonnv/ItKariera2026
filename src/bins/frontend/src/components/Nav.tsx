@@ -1,4 +1,5 @@
 import { useLocation } from "@solidjs/router";
+import { Show } from "solid-js";
 
 export default function Nav() {
   const location = useLocation();
@@ -12,7 +13,14 @@ export default function Nav() {
         </li>
       </ul>
       <div class="flex-1">
-        <a class="btn btn-ghost" href="/login">Login</a>
+        <a class="btn" href="login">Login</a> {/*trqq dobavq <Show when={!IsLoggedIn()}> kato ima neshto gotovo ot backenda mai*/}
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn m-1">User</div>
+            <ul tabindex="-1" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+              <li><a href="medicalInfo">Medical information</a></li>
+              <li><a href="userInfo">User information</a></li>
+            </ul>
+          </div>
       </div>
     </div>
   );

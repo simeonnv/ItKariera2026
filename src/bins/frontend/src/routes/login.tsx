@@ -1,6 +1,6 @@
 import { A } from "@solidjs/router";
 
-export default function Home() {
+export default function Login() {
   return (
     <main class="text-center mx-auto text-gray-100 p-4">
       <div class="flex w-full min-h-screen">
