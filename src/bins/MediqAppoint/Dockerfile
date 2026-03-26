@@ -2,7 +2,7 @@
 WORKDIR /src/bins/MediqAppoint
 COPY . ./
 
-WORKDIR ./
+
 RUN dotnet restore
 RUN dotnet publish -c Release -o /out
 
