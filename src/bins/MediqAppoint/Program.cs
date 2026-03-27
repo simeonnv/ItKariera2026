@@ -1,7 +1,7 @@
 using DbModels;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
-
+using Microsoft.AspNetCore.Identity;
 
 // bundle this in some object
 Env.Load("../../../.env.dev");
@@ -22,13 +22,21 @@ builder.Services.AddDbContext<AppDbContext>(dbOptions =>
     )
 );
 
-builder.Services.AddOpenApi();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddRoles<IdentityRole>() 
+    .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 using var app = builder.Build();
 
-if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGet("/ping", () => new Message("pong"))
     .WithName("GetPingMessage");
@@ -40,6 +48,14 @@ app.MapGet("/env_value",
     (IConfiguration config) => new Message(config["ENV_VALUE"] ?? "ENV_VALUE is not set!"));
 
 app.MapGet("/examples", async (AppDbContext db) => await db.Examples.ToListAsync());
+
+app.MapIdentityApi<IdentityUser>();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();   
+    app.UseSwaggerUI(); 
+}
 
 app.Run();
 
