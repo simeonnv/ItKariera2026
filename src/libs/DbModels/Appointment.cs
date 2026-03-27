@@ -1,21 +1,27 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace DbModels;
+
+public enum AppointmentStatus
+{
+    Pending,
+    Accepted,
+    Rejected,
+    Completed
+}
 
 public class Appointment
 {
-    public int Id { get; set; }
+    public int Id { get; init; }
 
-    public string PatientId { get; set; } = string.Empty;
-    public IdentityUser Patient { get; set; } = null!;
+    public string PatientId { get; init; } = string.Empty;
+    public ApplicationUser Patient { get; set; } = null!;
 
-    public string DoctorId { get; set; } = string.Empty;
-    public IdentityUser Doctor { get; set; } = null!;
+    public string DoctorId { get; init; } = string.Empty;
+    public ApplicationUser Doctor { get; set; } = null!;
 
-    public int ServiceId { get; set; }
-    public Service Service { get; set; } = null!;
+    public int ServiceId { get; init; }
+    public Service Service { get; init; } = null!;
 
-    public DateTime AppointmentDateTime { get; set; }
+    public DateTime AppointmentDateTime { get; init; }
 
-    public string Status { get; set; } = "Pending"; // Pending, Accepted, Rejected, Completed
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
 }

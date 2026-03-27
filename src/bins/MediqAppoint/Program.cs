@@ -1,6 +1,10 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using DotNetEnv;
+using MediqAppoint.Endpoints;
 using Microsoft.EntityFrameworkCore;
+using DbModels;
+using MediqAppoint.Helpers;
 
 Env.Load("../../../.env.dev");
 
@@ -13,15 +17,23 @@ var password = Environment.GetEnvironmentVariable("MYSQL_ROOT_PASSWORD") ?? "roo
 
 var serverConnectionString = $"Server={host};Port={port};Database={database};Uid=root;Pwd={password};";
 
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(serverConnectionString, new MySqlServerVersion(new Version(8, 0, 45))));
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
+builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(Roles.Admin, policy => policy.RequireRole(Roles.Admin))
+    .AddPolicy(Roles.Doctor, policy => policy.RequireRole(Roles.Doctor));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -30,10 +42,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-    foreach (var roleName in new[] { "Admin", "Doctor", "Patient" })
+    foreach (var roleName in new[] { Roles.Admin, Roles.Doctor, Roles.Patient })
     {
         if (!await roleManager.RoleExistsAsync(roleName))
             await roleManager.CreateAsync(new IdentityRole(roleName));
@@ -47,10 +59,10 @@ using (var scope = app.Services.CreateScope())
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
         if (adminUser == null)
         {
-            var newAdmin = new IdentityUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
+            var newAdmin = new ApplicationUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
             var result = await userManager.CreateAsync(newAdmin, adminPassword);
             if (result.Succeeded)
-                await userManager.AddToRoleAsync(newAdmin, "Admin");
+                await userManager.AddToRoleAsync(newAdmin, Roles.Admin);
         }
     }
 }
@@ -59,7 +71,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapIdentityApi<IdentityUser>();
+app.MapIdentityApi<ApplicationUser>();
 
 app.MapAdminEndpoints();
 app.MapDoctorEndpoints();

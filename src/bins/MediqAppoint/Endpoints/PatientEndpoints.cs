@@ -1,64 +1,76 @@
 using DbModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+using MediqAppoint.Helpers;
+using MediqAppoint.Models;
+
+namespace MediqAppoint.Endpoints;
 
 public static class PatientEndpoints
 {
     public static void MapPatientEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/doctors", async (UserManager<IdentityUser> userManager) =>
-        {
-            var doctors = await userManager.GetUsersInRoleAsync("Doctor");
-            return Results.Ok(doctors.Select(d => new { d.Id, d.Email }));
-        });
-
-        app.MapGet("/doctors/{doctorId}/services", async (string doctorId, AppDbContext db) =>
-        {
-            var services = await db.Services.Where(s => s.DoctorId == doctorId).ToListAsync();
-            return Results.Ok(services);
-        });
-
-        app.MapPost("/appointments", async (CreateAppointmentRequest req,
-            AppDbContext db, HttpContext http) =>
-        {
-            var patientId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(patientId)) return Results.Unauthorized();
-
-            var service = await db.Services.FindAsync(req.ServiceId);
-            if (service == null || service.DoctorId != req.DoctorId)
-                return Results.BadRequest("Invalid service or doctor");
-
-            var appointment = new Appointment
+        app.MapGet(
+            "/doctors",
+            async (UserManager<ApplicationUser> userManager) =>
             {
-                PatientId = patientId,
-                DoctorId = req.DoctorId,
-                ServiceId = req.ServiceId,
-                AppointmentDateTime = req.AppointmentDateTime,
-                Status = "Pending"
-            };
+                var doctors = await userManager.GetUsersInRoleAsync(Roles.Doctor);
+                return Results.Ok(doctors.Select(d => new { d.Id, d.Email }));
+            });
 
-            db.Appointments.Add(appointment);
-            await db.SaveChangesAsync();
+        app.MapGet(
+            "/doctors/{doctorId}/services",
+            async (string doctorId,
+                AppDbContext db) =>
+            {
+                var services = await db.Services.Where(s => s.DoctorId == doctorId).ToListAsync();
+                return Results.Ok(services);
+            });
 
-            return Results.Created($"/appointments/{appointment.Id}", appointment);
-        })
-        .RequireAuthorization();
+        app.MapPost(
+                "/appointments",
+                async (CreateAppointmentRequest req,
+                    ICurrentUser currentUser,
+                    AppDbContext db) =>
+                {
+                    if (currentUser.Id is null) return Results.Unauthorized();
 
-        app.MapGet("/appointments/me", async (AppDbContext db, HttpContext http) =>
-        {
-            var patientId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(patientId)) return Results.Unauthorized();
+                    var service = await db.Services.FindAsync(req.ServiceId);
+                    if (service == null || service.DoctorId != req.DoctorId)
+                        return Results.BadRequest("Invalid service or doctor");
 
-            var appointments = await db.Appointments
-                .Where(a => a.PatientId == patientId)
-                .Include(a => a.Doctor)
-                .Include(a => a.Service)
-                .OrderByDescending(a => a.AppointmentDateTime)
-                .ToListAsync();
+                    var appointment = new Appointment
+                    {
+                        PatientId = currentUser.Id,
+                        DoctorId = req.DoctorId,
+                        ServiceId = req.ServiceId,
+                        AppointmentDateTime = req.AppointmentDateTime,
+                        Status = AppointmentStatus.Pending
+                    };
 
-            return Results.Ok(appointments);
-        })
-        .RequireAuthorization();
+                    db.Appointments.Add(appointment);
+                    await db.SaveChangesAsync();
+
+                    return Results.Created($"/appointments/{appointment.Id}", appointment);
+                })
+            .RequireAuthorization();
+
+        app.MapGet(
+                "/appointments/me",
+                async (ICurrentUser currentUser,
+                    AppDbContext db) =>
+                {
+                    if (currentUser.Id is null) return Results.Unauthorized();
+
+                    var appointments = await db.Appointments
+                        .Where(a => a.PatientId == currentUser.Id)
+                        .Include(a => a.Doctor)
+                        .Include(a => a.Service)
+                        .OrderByDescending(a => a.AppointmentDateTime)
+                        .ToListAsync();
+
+                    return Results.Ok(appointments);
+                })
+            .RequireAuthorization();
     }
 }
