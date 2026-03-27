@@ -1,12 +1,16 @@
 import { A, useLocation } from "@solidjs/router";
 import ThemePicker from "./ThemePicker";
+import { useAuth } from "../context/AuthContext";
 
 export default function Nav() {
+  const auth = useAuth();
   const location = useLocation();
+
   const active = (path: string) =>
     path == location.pathname
       ? "border-primary"
       : "border-transparent hover:border-primary";
+
   return (
     <div class="navbar bg-base-200 flex flex-row shadow-sm px-6">
       <ul class="container flex items-center">
@@ -19,9 +23,20 @@ export default function Nav() {
 
       <div class="grow" />
 
-      <A class="btn btn-ghost" href="/auth">
-        Login
-      </A>
+      {auth.isLoggedIn() ? (
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn m-1">User</div>
+          <ul
+            tabindex="-1"
+            class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+          >
+            <li><a href="medicalInfo">Medical information</a></li>
+            <li><a href="userInfo">User information</a></li>
+          </ul>
+        </div>
+      ) : (
+        <A href="/auth" class="btn m-1">Login</A>
+      )}
 
       <ThemePicker />
     </div>

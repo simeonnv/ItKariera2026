@@ -1,10 +1,8 @@
 import { A } from "@solidjs/router";
 
 export default function UserInfo() {
-  // please use the inbuilt colors in daisy
-
   return (
-    <main class="flex justify-center content-center flex-col mx-auto text-gray-100 p-30">
+    <main class="flex justify-center content-center flex-col mx-auto h-full p-30">
       <div>
         <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
           <table class="table">
@@ -26,9 +24,17 @@ export default function UserInfo() {
                 <td>sample@email.com</td>
               </tr>
               <tr>
+                <th>Identification number</th>
+                <td>1234567890</td>
+              </tr>
+              <tr>
+                <th>Hospital</th>
+                <td>bate znaesh</td>
+              </tr>
+              <tr>
                 <td>
                   <button class="btn mr-2">Logout</button>
-                  <label for="my_modal_6" class="btn bg-red-800">
+                  <label for="my_modal_6" class="btn bg-error">
                     Delete account
                   </label>
                 </td>
@@ -39,10 +45,10 @@ export default function UserInfo() {
           <input type="checkbox" id="my_modal_6" class="modal-toggle" />
           <div class="modal" role="dialog">
             <div class="modal-box">
-              <h3 class="text-lg font-bold text-red-600">Warning</h3>
+              <h3 class="text-lg font-bold text-warning">Warning</h3>
               <p class="py-4">Are you sure you want to delete your account?</p>
               <div class="modal-action">
-                <label for="my_modal_6" class="btn bg-gray-800">
+                <label for="my_modal_6" class="btn ">
                   No
                 </label>
                 <button class="btn">Yes</button>
