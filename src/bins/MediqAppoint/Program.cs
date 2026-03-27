@@ -33,6 +33,60 @@ builder.Services.AddSwaggerGen();
 
 using var app = builder.Build();
 
+// creating a static admin account depending on ENV
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    string roleName = "Admin";
+    if (!await roleManager.RoleExistsAsync(roleName))
+    {
+        await roleManager.CreateAsync(new IdentityRole(roleName));
+    }
+
+    var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+
+    if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
+    {
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+        if (adminUser == null)
+        {
+            var newAdmin = new IdentityUser 
+            { 
+                UserName = adminEmail, 
+                Email = adminEmail,
+                EmailConfirmed = true 
+            };
+
+            var createResult = await userManager.CreateAsync(newAdmin, adminPassword);
+    
+            if (createResult.Succeeded)
+            {
+                await userManager.AddToRoleAsync(newAdmin, roleName);
+                Console.WriteLine($"Admin user {adminEmail} created successfully.");
+            } else {
+                foreach (var error in createResult.Errors)
+                {
+                    Console.WriteLine($"Error creating admin: {error.Description}");
+                }
+            }
+        }
+        else 
+        {
+            var passwordCheck = await userManager.CheckPasswordAsync(adminUser, adminPassword);
+            if (!passwordCheck)
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+                await userManager.ResetPasswordAsync(adminUser, token, adminPassword);
+                Console.WriteLine($"Admin password updated to match .env file.");
+            }
+        }
+    }
+}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
