@@ -6,12 +6,22 @@ import { createSignal } from "solid-js";
 import { useAuth } from "../context/AuthContext";
 import PublicOnly from "~/components/PublicOnly";
 
+
+export interface AuthResponse {
+  tokenType: string;
+  accessToken: string;
+  expiresIn: number; 
+  refreshToken: string;
+}
+
+
+
 export default function AuthPage() {
   const [username, setUsername] = createSignal("");
   const [email, setEmail] = createSignal("");
   const [id, setID] = createSignal("");
   const [password, setPassword] = createSignal("");
-  const [isLogin, setIsLogin] = createSignal(false);
+  const [isLogin, setIsLogin] = createSignal(true);
 
   const { login } = useAuth();
 
@@ -38,26 +48,29 @@ export default function AuthPage() {
   function toggleMode() {
     setIsLogin(!isLogin());
   }
+  
 
   async function handleSubmit(e: Event) {
-  e.preventDefault();
-  const url = isLogin()
-    ? "http://localhost:5000/api/auth/login"
-    : "http://localhost:5000/api/auth/register";
+    e.preventDefault();
+    const url = isLogin()
+      ? "http://localhost:5120/login"
+      : "http://localhost:5120/register";
 
-  const payload = isLogin()
-    ? { username: username(), password: password() }
-    : { username: username(), email: email(), id: id(), password: password() };
+    const payload = isLogin()
+      ? { email: email(), password: password() }
+      : { email: email(), password: password() };
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  if (res.ok) {
-    login();
-  }
+    if (res.ok) {
+      let data: AuthResponse = await res.json();
+
+      login(data);
+    }
 }
 
 return (
@@ -75,19 +88,8 @@ return (
           <div class="flex flex-col items-center gap-4 w-full max-w-sm">
             <h3>To view or edit medical information, please {isLogin() ? "login" : "register"}!</h3>
             <form onSubmit={handleSubmit} class="flex flex-col items-center gap-4 w-full max-w-sm">
-              <label class="input validator w-full">
-                <FaRegularUserCircle />
-                <input 
-                type="text" 
-                required placeholder="Username" 
-                pattern="[A-Za-z][A-Za-z0-9\-]*" 
-                minlength="3" 
-                maxlength="30" 
-                title="Only letters, numbers or dash" 
-                onInput={handleUsernameInput} />
-              </label>
-              {!isLogin() && (
-                <>
+              
+              
                   <label class="input validator w-full">
                     <AiOutlineMail />
                     <input 
@@ -97,20 +99,8 @@ return (
                     onInput={handleEmailInput} 
                     title="Your email address" />
                   </label>
-                  <label class="input validator w-full">
-                    <AiOutlinePhone />
-                    <input 
-                    type="tel" 
-                    required 
-                    placeholder="Identification number" 
-                    pattern="[0-9]*" 
-                    minlength="10" 
-                    maxlength="10" 
-                    title="Must be 10 digits" 
-                    onInput={handleIDInput} />
-                  </label>
-                </>
-              )}
+                  
+                
               <label class="input validator w-full">
                 <VsKey />
                 <input 
@@ -122,13 +112,14 @@ return (
                 title="Must be more than 8 characters, including number, lowercase letter, uppercase letter" 
                 onInput={handlePasswordInput} />
               </label>
-              <button type="submit" class="btn w-full m-2">
+              <button type="submit" class="btn w-full m-2" >
                 {isLogin() ? "Login" : "Register"}
+                
               </button>
             </form>
             <h5>
               {isLogin() ? "Don't have an account?" : "Have an account already?"}{" "}
-              <button type="button" class="link link-hover link-info" onClick={toggleMode}>
+              <button type="button" class="link link-hover link-info" onClick={() => toggleMode()}>
                 {isLogin() ? "Register" : "Login"}
               </button>
             </h5>

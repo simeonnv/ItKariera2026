@@ -21,7 +21,10 @@ services:
       - mediq_be
 
   app:
-    build: ../src/bins/MediqAppoint
+    
+    build: 
+      context: ..
+      dockerfile: src/bins/MediqAppoint/Dockerfile
     container_name: mediqapp
     depends_on:
       db:

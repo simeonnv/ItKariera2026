@@ -10,7 +10,7 @@ Env.Load("../../../.env.dev");
 
 var builder = WebApplication.CreateBuilder(args);
 
-var host = Environment.GetEnvironmentVariable("DB_DNS") ?? "localhost";
+var host = Environment.GetEnvironmentVariable("DB_DNS") ?? "db";
 var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "3306";
 var database = Environment.GetEnvironmentVariable("MYSQL_DATABASE") ?? "root";
 var password = Environment.GetEnvironmentVariable("MYSQL_ROOT_PASSWORD") ?? "root";
@@ -26,6 +26,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()    
+              .AllowAnyMethod()    
+              .AllowAnyHeader());  
+});
+
+
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
@@ -38,6 +47,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -68,6 +78,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

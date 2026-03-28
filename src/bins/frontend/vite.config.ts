@@ -5,8 +5,13 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [
-    solidStart(),
+    
     tailwindcss(),
-    nitro()
-  ]
+    solidStart(),
+    nitro({
+      externals: {
+        inline: ["srvx"]
+      }
+    })
+  ],
 });
