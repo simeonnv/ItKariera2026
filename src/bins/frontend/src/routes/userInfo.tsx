@@ -1,7 +1,17 @@
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
+import Protected from "~/components/Protected";
+import { useAuth } from "~/context/AuthContext";
 
 export default function UserInfo() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/auth");
+  }
   return (
+    <Protected>
     <main class="flex justify-center content-center flex-col mx-auto h-full p-30">
       <div>
         <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
@@ -33,7 +43,7 @@ export default function UserInfo() {
               </tr>
               <tr>
                 <td>
-                  <button class="btn mr-2">Logout</button>
+                  <a class="btn mr-2" onClick={handleLogout} href="/">Logout</a>
                   <label for="my_modal_6" class="btn bg-error">
                     Delete account
                   </label>
@@ -58,5 +68,6 @@ export default function UserInfo() {
         </div>
       </div>
     </main>
+    </Protected>
   );
 }

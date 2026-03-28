@@ -21,7 +21,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(serverConnectionString, new MySqlServerVersion(new Version(8, 0, 45))));
+    options.UseMySql(serverConnectionString, ServerVersion.AutoDetect(serverConnectionString)));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();

@@ -1,6 +1,8 @@
 import { A } from "@solidjs/router";
+import { useAuth } from "../context/AuthContext";
 
 export default function DoctorInfo() {
+  const auth = useAuth();
   return (
     <main class="flex justify-center content-center flex-col mx-auto h-full p-30">
       <div>
@@ -44,7 +46,8 @@ export default function DoctorInfo() {
           </div>
           <p class="list-col-wrap text-xs">Book an appointment for me and if you get approved I guarantee you, you will never have lupus in your life!</p>
         </li>
-        <a href="/createAppointment" class="btn m-5">Book an appointment</a>
+        {auth.isLoggedIn() ? (<a href="/createAppointment" class="btn m-5">Book an appointment</a>) : (<><a class="btn btn-disabled m-5">Book an appointment</a> 
+        <p class="m-2">You need to login to book an appointment!</p></>)}
       </ul>
         </div>
       </div>

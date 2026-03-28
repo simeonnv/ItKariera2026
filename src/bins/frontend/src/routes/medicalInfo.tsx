@@ -1,7 +1,9 @@
 import { A } from "@solidjs/router";
+import Protected from "~/components/Protected"
 
 export default function MedicalInfo() {
   return (
+    <Protected>
     <main class="flex justify-center flex-col mx-auto p-40 h-full">
       <h3 class="p-10">You can take a look at all your appointments here:</h3>
       <ul class="list bg-base-100 rounded-box shadow-md">
@@ -44,7 +46,8 @@ export default function MedicalInfo() {
           <div class="badge badge-info">Accepted</div>
         </li>
       </ul>
-      <a class="btn mt-5">Create appointment</a>
+      <a class="btn mt-5" href="/doctors">Create appointment</a>
     </main>
+    </Protected>
   );
 }

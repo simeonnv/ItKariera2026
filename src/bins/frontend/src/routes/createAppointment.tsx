@@ -1,7 +1,10 @@
 import { A } from "@solidjs/router";
+import Protected from "~/components/Protected";
 
 export default function CreateAppointment() {
+
   return (
+    <Protected>
     <main class="flex justify-center flex-col mx-auto h-full p-40">
       <p class="m-2">Fill out the information below:</p>
         <fieldset class="fieldset">
@@ -13,8 +16,7 @@ export default function CreateAppointment() {
             <textarea class="textarea border-2"></textarea>
         </fieldset>
         <button class="btn mt-5">Create appointment</button>
-        
     </main>
-    
+    </Protected>
   );
 }

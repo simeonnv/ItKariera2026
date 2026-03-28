@@ -12,7 +12,7 @@ export default function Nav() {
       : "border-transparent hover:border-primary";
 
   return (
-    <div class="navbar bg-base-200 flex flex-row shadow-sm px-6">
+    <div class="navbar bg-base-200 flex flex-row shadow-sm px-6 sticky top-0 z-50">
       <ul class="container flex items-center">
         <li class={`border-b-2 ${active("/")} mx-1.5 sm:mx-6`}>
           <A class="text-xl" href="/">
@@ -35,9 +35,9 @@ export default function Nav() {
           </ul>
         </div>
       ) : (
-        <A href="/auth" class="btn m-1">Login</A>
+        <A href="/auth" class="btn">Login</A>
       )}
-
+      <A href="/doctors" class="btn mx-2">Doctors</A>
       <ThemePicker />
     </div>
   );

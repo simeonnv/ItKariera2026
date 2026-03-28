@@ -5,20 +5,15 @@ export default function Home() {
   const auth = useAuth();
 
   return (
-    <main class="text-center h-full flex items-center justify-center">
-      <div class="bg-[url(src/images/hopital.png)] h-full w-full">
-        <div class="backdrop-blur-sm p-4 py-15 h-full flex flex-col items-center justify-center">
-          <h1 class="max-6-xs text-6xl text-primary font-bold uppercase">
-            MediqApp
-          </h1>
-          <p class="mt-10">One place for all your medical records.</p>
-          {auth.isLoggedIn() && (
-            <A class="btn btn-info mt-10" href="/medicalInfo">
-              Take a look
-            </A>
-          )}
-        </div>
-      </div>
-    </main>
+    <main class="relative w-screen min-h-screen">
+      <div class="absolute inset-0 bg-[url(src/images/hopital.png)] bg-cover bg-center"></div>
+        <div class="absolute inset-0 brightness-50 backdrop-blur-sm bg-white/10"></div>
+          <div class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center p-4">
+            <h1 class="text-6xl text-primary font-bold uppercase">MediqApp</h1>
+            <p class="mt-10">One place for all your medical records.</p>
+            {auth.isLoggedIn() && (
+            <A class="btn btn-info mt-10" href="/medicalInfo">Take a look</A>)}
+          </div>
+      </main>
   );
 }

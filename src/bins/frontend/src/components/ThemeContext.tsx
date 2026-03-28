@@ -1,4 +1,3 @@
-// src/components/ThemeContext.tsx
 import {
   createContext,
   useContext,
