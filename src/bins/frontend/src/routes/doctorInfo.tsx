@@ -45,6 +45,7 @@ export default function DoctorInfo() {
             </div>
           </div>
           <p class="list-col-wrap text-xs">Book an appointment for me and if you get approved I guarantee you, you will never have lupus in your life!</p>
+          <p>Price: 100$</p>
         </li>
         {auth.isLoggedIn() ? (<a href="/createAppointment" class="btn m-5">Book an appointment</a>) : (<><a class="btn btn-disabled m-5">Book an appointment</a> 
         <p class="m-2">You need to login to book an appointment!</p></>)}
