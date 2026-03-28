@@ -6,9 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using DbModels;
 using MediqAppoint.Helpers;
 
-Env.Load("../../../.env.dev");
-
 var builder = WebApplication.CreateBuilder(args);
+
+// Move Env.Load into a check to avoid issues during testing if the file is missing or path is different
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    Env.Load("../../../.env.dev");
+}
 
 var host = Environment.GetEnvironmentVariable("DB_DNS") ?? "db";
 var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "3306";
@@ -20,8 +24,11 @@ var serverConnectionString = $"Server={host};Port={port};Database={database};Uid
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(serverConnectionString, ServerVersion.AutoDetect(serverConnectionString)));
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseMySql(serverConnectionString, ServerVersion.AutoDetect(serverConnectionString)));
+}
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
@@ -49,30 +56,33 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 
-using (var scope = app.Services.CreateScope())
+if (app.Environment.EnvironmentName != "Testing")
 {
-    var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-    foreach (var roleName in new[] { Roles.Admin, Roles.Doctor, Roles.Patient })
+    using (var scope = app.Services.CreateScope())
     {
-        if (!await roleManager.RoleExistsAsync(roleName))
-            await roleManager.CreateAsync(new IdentityRole(roleName));
-    }
+        var services = scope.ServiceProvider;
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-    var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
-    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
-
-    if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
-    {
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser == null)
+        foreach (var roleName in new[] { Roles.Admin, Roles.Doctor, Roles.Patient })
         {
-            var newAdmin = new ApplicationUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
-            var result = await userManager.CreateAsync(newAdmin, adminPassword);
-            if (result.Succeeded)
-                await userManager.AddToRoleAsync(newAdmin, Roles.Admin);
+            if (!await roleManager.RoleExistsAsync(roleName))
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+
+        var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+        var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+
+        if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
+        {
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                var newAdmin = new ApplicationUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
+                var result = await userManager.CreateAsync(newAdmin, adminPassword);
+                if (result.Succeeded)
+                    await userManager.AddToRoleAsync(newAdmin, Roles.Admin);
+            }
         }
     }
 }
@@ -95,3 +105,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+public partial class Program { }
